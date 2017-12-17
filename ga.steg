@@ -1,0 +1,70 @@
+include
+  <cstdlib>
+
+honly
+  typedef void (*gad_function_pointer)(bool * inp)
+
+template <class T>
+  func void gad(bool * inp)
+    delete ((T*)(inp))
+
+class ga_root
+  public
+    unsigned short cou
+    gad_function_pointer des
+    bool * data
+    func void inc()
+      if cou>65500
+        throw "too many refs"
+      cou += 1
+    func void dec()
+      if cou<2
+        des(data)
+        delete this
+      else
+        cou -= 1
+
+class ga
+  private
+    ga_root * grp
+  public
+    func ~ga()
+      if grp!=NULL
+        grp->dec()
+    func ga()
+      grp = NULL
+    func ga(const ga & inp)
+      grp = inp.grp
+      if grp!=NULL
+        grp->inc()
+    func void operator=(const ga & inp)
+      if inp.grp!=NULL
+        inp.grp->inc()
+      if grp!=NULL
+        grp->dec()
+      grp = inp.grp
+    func void clear()
+      if grp!=NULL
+        grp->dec()
+        grp = NULL
+    template <class T>
+      func void makenew()
+        clear()
+        grp = new ga_root
+        (grp->cou) = 1
+        (grp->des) = &(gad<T>)
+        (grp->data) = (bool*)(new T)
+    func bool isdef()
+      if grp==NULL
+        return false
+      return true
+    func unsigned short c() // potential segfault
+      return grp->cou
+    func gad_function_pointer t() // potential segfault
+      return grp->des
+    func bool * p() // potential segfault
+      return grp->data
+    func bool sameref(const ga & inp)
+      if grp==inp.grp
+        return true
+      return false
